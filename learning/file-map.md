@@ -13,10 +13,19 @@
 | Path | Mark | What it is and why it exists | Deep dive |
 |---|---|---|---|
 | `learning/` | parked | A folder for notes about *me learning*, kept separate from the app's code. | Next session opener |
-| `learning/project.md` | parked | The project record: who I am, the idea, the trunk, the MVP, the parking lot, the progress log. Read first every session. | Next session opener |
-| `learning/plan.md` | parked | The 5 locked design decisions and the 8-section build plan. | Next session opener |
+| `learning/project.md` | parked | The lab's project record: who I am, the idea, the MVP, the Career OS deliverables, the parking lot, the progress log. Rewritten for the lab 2026-10-07 (Climb Tracker's version lives in that repo). | Next session opener |
+| `learning/plan.md` | parked | The lab's 4 locked decisions (session 1, 2026-10-07) and the 9-section build plan, one deliverable per session. | Next session opener |
+| `learning/progress.md` | parked | Claude's tracking file (max 30 lines): where I am, what's solid, what's shaky, the parking lot. Sessions start here. | — |
 | `learning/knowledge-graph.md` | parked | The map of what I actually know. It decides what I get quizzed on. | Next session opener |
 | `learning/file-map.md` | parked | This file: a line for every file, so nothing is a mystery. | Next session opener |
+
+## `docs/`: my public portfolio notes (for recruiters)
+
+| Path | Mark | What it is and why it exists | Deep dive |
+|---|---|---|---|
+| `docs/decisions/` | parked | One record per locked decision: the choice, the alternatives, my reasoning. | Session 1 drafts |
+| `docs/journal/` | parked | One short entry per session: problem, what I tried, what went wrong, what I decided and why. | — |
+| `docs/support/` | parked | Tickets, incident reports, runbooks and the known-issues page (from §8). | §8 |
 
 ## The app
 

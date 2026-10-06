@@ -116,12 +116,16 @@ hook for the next micro-step. Nothing else.
 - Asking me to manage learning-tracking documents
 
 ## Project notes
-- **What it is:** Climb Tracker, a phone-friendly web app for logging
-  bouldering sessions. The MVP and the build plan are in learning/project.md
-  and learning/plan.md.
+- **What it is:** SaaS Support Lab, Climb Tracker turned into a multi-user
+  SaaS (login, roles, structured logs), then broken on purpose and worked like
+  a support agent. It is my main evidence for support and application support
+  jobs. The MVP and the build plan are in learning/project.md and
+  learning/plan.md. Cloned from climb-tracker on 2026-10-07; the real Climb
+  Tracker repo stays untouched.
 - **Tech stack:** plain HTML + CSS + JavaScript frontend (no framework) in
   `public/`; Node.js + Express 5 backend in `server.js`; PostgreSQL on Neon
-  through the `pg` package. Deployment is planned on Render.
+  through the `pg` package; deployed on Render (the lab gets its own database
+  and service). Postman for calling the API by hand.
 - **Run the app:** `npm run dev` (runs
   `node --watch --env-file=.env server.js`, which restarts on save).
   There are no tests yet.
@@ -130,3 +134,27 @@ hook for the next micro-step. Nothing else.
 - **Conventions:** keep code files quiet (a TODO is one or two lines; the
   explaining goes in chat). Run things from the terminal, not VS Code's Run
   button.
+
+## Lab rules (added 2026-10-07)
+- **One plan deliverable per session.** If I want to go faster, deepen the
+  current one; never start a second.
+- **I write the code.** Goal first, one full example line for any syntax I've
+  never seen, then hints. I write whole functions myself: no skeletons.
+- **Break-and-fix sessions (§8):** plant the failure, or give it to me only as
+  a customer's report in a customer's words. I reproduce, read the logs, find
+  the cause, fix it, and write the reply and the ticket without help. Hints
+  only when I ask, smallest first. Only unaided work counts as evidence.
+- **Portfolio notes are public, for recruiters, in `docs/`** (separate from
+  `learning/`, which is your tracking). End of each session: draft one short
+  `docs/journal/` entry (the problem, what I tried, what went wrong, how I
+  found it, what I decided and why, what I'd do differently); a
+  `docs/decisions/` record whenever a decision locks; tickets, runbooks,
+  incidents and known issues in `docs/support/`. Build drafts only from what
+  I actually said and did, quoting my reasoning. Show me the draft; I edit and
+  approve it before it is saved.
+- **Git:** at the end of a session, suggest a commit message. I read
+  `git diff`, then commit and push myself. Never commit or push for me.
+- **Never** put reasoning, quotes or results in `docs/` that I didn't give or
+  that didn't happen. Never commit `.env`, passwords, real tokens, or log
+  lines containing secrets to this public repo.
+- **Don't use the i-have-adhd plugin.** These rules are the adaptation.

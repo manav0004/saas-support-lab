@@ -1,30 +1,28 @@
 # Progress
 
 ## Now
-Sections 1–6 done: climbs live in PostgreSQL on Neon. 6.1 (2026-10-01): `required` + `Number()`; server answers 400 for an effort outside 1–5 or not whole. 6.2 (2026-10-03): today list shows only today; I wrote `groupByDay()` and `renderPast()` (one `.card` per day); `ORDER BY created_at DESC`; shared `createClimbItem(climb)` (Claude finished the wiring on my request).
-Section 8 (deploy on Render, skipping 7) started 2026-10-05: wrote `process.env.PORT || 3000`, predicted `undefined` → 3000; added `"start": "node server.js"` (first overwrote `dev`; keep both). Ran `npm start` locally and read ECONNREFUSED 127.0.0.1:5432 correctly. SHAKY big picture: lost on "what is Render" and why a git-ignored `.env` still reaches Render, until shown phone → Render (server.js) → Neon; then placed 5432 on the server→Neon arrow. Thought `localhost` on the phone = laptop. Predicted Render without `DATABASE_URL` tries localhost and fails, and that an unpushed commit never reaches Render; pushed (Render reads GitHub, not my laptop). Said "server to git" in the request path: fixed with deploy-time vs gym-time diagram. Status wording vague ("not up to date" vs "ahead by 1"). Use diagrams, one piece at a time.
-DEPLOYED 2026-10-05: live on Render (free plan, auto-deploys on push; sleeps after ~15 min). Set Build `npm install`, Start, `DATABASE_URL` env var. First deploy failed (`Cannot find module .../src/start`, Start Command was `node start`): I read the path and fixed it to `npm start` after the node-runs-files vs npm-runs-scripts hint. Unanswered: why the Render log port ≠ 3000; (answered right: a phone climb shows on localhost because both servers use the same Neon; not yet tested). Cleanups done: deleted unused `climbDate`; kept the startup `await pool.query` smoke test but dropped `const result =` (first edited the GET route on line 35 by mistake, page went empty, undid it: same name in different `{ }` = different variables). Return: console-proved a function without `return` gives `undefined`; skipped predicting `appendChild(undefined)`. Claude wrapped past-day `<li>`s in a `<ul class="climb-list">` on my request. 6.3 started 2026-10-05: wrote `try`/`catch` + `alert` around the POST fetch; found and wrapped the `loadClimbs` fetch myself; traced 2 alerts correctly; added `return` in the catch → 1 alert (tested). Stale-tab lesson: the browser runs the app.js it loaded. 6.3 part 2: predicted the catch does NOT run on a 400; read `status 400, ok false` in the console; envelope (`response`) vs letter (`climbs`). Wrote the `response.ok` check but first forgot `const response =`, moved the `if` above the fetch (guessing under pressure), wrote `= false`; fixed `===` myself; Claude added the `return` on request. NEXT: push so the phone gets 6.3; then the §6 trace-a-tap and Section 7 (tests). Warm-ups: scope (which `result`), `appendChild(undefined)`. I write whole functions myself: no skeletons.
+Session 1 (2026-10-07): planning done. 4 decisions + MVP locked (`plan.md`, `project.md`). Repo cloned from climb-tracker (41 commits); `origin` still points at the local climb-tracker folder.
+NEXT: 1.1, the lab's own GitHub repo (point `origin` at it, push). Before it: read the new learning files and the decision-record drafts, then commit them myself after `git diff`.
+Warm-up: the shaky HTTP method ↔ SQL link (below), asked as "in Postman, which method adds a climb, which SQL runs, which status comes back?"
 
-## Solid (did it correctly)
-- HTML forms, labels, nesting: built the six-field log form; predicted and tested that `preventDefault` stops the reload.
-- Text vs number from HTML: fixed `'3'` with `Number()` twice; predicted `Number('')` is 0.
-- Server-side check: placed the 400 `if` above the INSERT; found that effort 6 slips past `< 1`; added the `isInteger` check myself.
-- Dates: predicted both `toDateString()` results; wrote `new Date(climb.created_at).toDateString()`; diagnosed the format mismatch myself.
-- Redraw the list from the data: predicted that splice without a redraw leaves a stale screen.
-- `.gitignore`, `.env`, `process.env`, the request logger and `express.static`: wrote them myself.
-- `fetch` + JSON body: wrote the POST body; predicted all 3 outcomes of the `body.id` URL bug.
-- Database: predicted that `'lots'` in an INTEGER column errors; extended a parameterized INSERT to `$1`–`$6` on the first try.
-- `for...in` over an object (predicted `Mon 2`, `Tue 1`); `getElementById` + `null`: wrote the `pastSessions` const; read the "properties of null" error (file, line, meaning) and placed the real bug on line 15, not the crash line 18. First guessed "syntax error" and that `null` can hold `textContent`.
+## Solid (did it correctly) — carried from Climb Tracker
+- Forms, `preventDefault`, `Number()` for HTML text, a server-side 400 check placed above the INSERT.
+- `fetch` + JSON body; `try`/`catch` + `response.ok`; dates with `toDateString()`; redraw the list from the data.
+- `.gitignore`, `.env`, `process.env`; a parameterized INSERT with `$1`–`$6`; deployed on Render myself.
 
-## Shaky (bring back one per session)
-- HTTP method ↔ SQL: named the POST then GET lines right, but needed the route code to name the SQL; said climbs go "into the server".
-- Data object fields: asked to read `created_at` from a climb object, wrote a SQL query first; `climb.created_at` after a hint.
-- Comparison symbols: wrote `> 1 || > 5`, `= false`, `day = !today` (`=` assigns, `!==` compares). Traces well once asked; says "should work" untested.
-- SQL is text (wrote `WHERE id = climb.id` inside the query; 2026-10-03 tried to create a JS `date` variable for `ORDER BY`, then named `created_at` myself after a hint); database defaults (predicted an INSERT without `id` errors).
-- CSS `#id` vs `.class`: thought `#today-list` matches `class="today-list"` and that attribute order matters. Solid on padding/margin of an empty box.
-- Object as drawers: key (label) vs value (contents), missing (`undefined`) vs empty (`[]`). Wrote `groups[day] !== day`, then `!== []`; needed the answer for `=== undefined`. Found the reset-the-drawer bug myself from console output. Tracing a two-move line (`groups[day].push`) is hard; console experiments work better than mental traces. 2026-10-02: wrote `groups[date] !== today` (array compared to a string), then fixed it myself with a `continue` above the drawer check.
-- Timing / `await`: knew the call belongs inside `loadClimbs` and placed it below the `await` lines, but predicted `undefined` twice for a call made before the data arrives (it is `{}`); mixes "function not called yet" with "data not there yet", and `undefined` with empty (`{}`, `[]`).
-- Functions with input/output: parameters, passing an argument, `return`; wrote `createClimbItem;` without `()` at first. Array vs list (the array stores, the `<ul>` shows); CSS specificity; closures; why serve only `public/`.
+## Planning evidence (session 1, decisions only, no code yet)
+- Separate environments: predicted 401 + a lost gym climb if the bug lived in climb-tracker.
+- 404 vs 403: chose "not allowed" first; after a 3-line trace found it leaks which accounts exist; applied 403 to `/admin/users` myself.
+- Token expiry: "a stolen token stops working after 15 minutes"; expired mid-session → keep the climb, re-login, save.
+- Logs: search by user first. MVP: mapped 4 failures to features; missed the coach link; logs stay because tickets need proof.
+- Said "lock it" once before checking the list; the follow-up question was answered right.
+
+## Shaky (bring back one per session) — carried from Climb Tracker
+- HTTP method ↔ action ↔ SQL (POST = add = INSERT, 201; GET = read = SELECT).
+- Data object fields vs page elements; `undefined` vs empty (`[]`, `{}`).
+- Comparison symbols (`=` assigns, `===`/`!==` compare); says "should work" untested.
+- SQL is text: values go through `$1` + the array, never a JS variable inside the query.
+- Timing / `await`: "not called yet" vs "data not there yet".
 
 ## Parking lot
-- Hardest send (first after the MVP) · Progress chart · Edit a climb · Warm-up and training recommendations (with pre-workout log) · Effort message at the legend instead of the browser bubble on radio 1 · Past sessions on their own page/tab (`oldClimbs.html`) · Show only the last 5 past days · Backup/export · Offline mode · Sync across devices / accounts · Comp grades above 7c · Login, so only I can add/delete on the public URL
+- Password reset · Stay logged in (no re-entering the password) · Edit a climb · Coach comments · Rate limits (429)

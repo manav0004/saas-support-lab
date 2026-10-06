@@ -33,6 +33,8 @@
 
 ## 🎯 Quiz queue (next session)
 
+**Lab, session 2 (task 1.1):** warm-up on 0d below (HTTP method ↔ SQL), asked through Postman wording. Then one check on U3: "Marc asks for climb 57, which belongs to Carla. 403 or 404?"
+
 0. **Opener (session 11): task 6.1, step 1, shown but not started.** §6 is split into 6.1–6.3 in `plan.md`. Re-show it short, goal first:
    log a climb with no effort and read the terminal (the `22P02` refusal), add `required` to the first effort radio, wrap effort in `Number()` like
    attempts, test. Then step 2: the server's own check that answers 400 (show one full example `if` first). Ask 0d before starting.
@@ -161,6 +163,26 @@
 | A8 | No mystery boxes (every file explained; see `file-map.md`) | all | 👋 | 2026-09-26 | 2026-09-26 | Session 4: I asked for `file-map.md` so nothing in the repo is unexplained. | A4 |
 | A9 | Agent permissions (what Claude may do without asking) | — | 🌱 | — | — | `.claude/settings.local.json` lets Claude run git without asking. | A4 |
 
+## U: SaaS and support (the lab, from 2026-10-07)
+
+| ID | Concept | § | Status | Introduced | Last reviewed | Evidence | Builds on |
+|---|---|---|---|---|---|---|---|
+| U1 | Separate environments (break a copy, never the app people use) | Plan | 👋 | 2026-10-07 | 2026-10-07 | Predicted that a planted expired-token bug in climb-tracker would 401 at the gym and lose the climb. Own words: "so planted bugs never break the app I use at the gym." | E13 |
+| U2 | Roles and ownership (who may do what with whose data) | Plan / 4 | 👋 | 2026-10-07 | 2026-10-07 | Coach Marc may only read Bea's climbs: "adding or deleting is Bea's job." Missed that roles need a stored coach–climber link (told). | S25 |
+| U3 | 403 vs 404 (refusing without leaking that something exists) | Plan / 4 | 👋 | 2026-10-07 | 2026-10-07 | First chose "not allowed" for Carla's climbs (helpful UX). Re-sent the same answer to the stranger question; from a 3-line trace named climbers 1 and 3 as leaked and switched to "doesn't exist". Applied it myself: Bea on `/admin/users` → 403, "everyone already knows the admin page exists." | S20, U2 |
+| U4 | Password hashing | 2 | 🌱 | — | — | — | S25 |
+| U5 | Tokens (signed, with expiry, sent in the `Authorization: Bearer` header) | Plan / 3 | 👋 | 2026-10-07 | 2026-10-07 | Why 15 minutes, not 30 days: "a stolen token stops working after 15 minutes." | S20, U4 |
+| U6 | Auth middleware (check the token before the route runs) | 3 | 🌱 | — | — | — | S24, U5 |
+| U7 | Expired-session UX (keep the typed data, re-login, then save) | Plan / 5 | 👋 | 2026-10-07 | 2026-10-07 | "Keep her climb, ask her to log in again, then save it." | U5, E11 |
+| U8 | Structured logs and request ids | Plan / 6 | 👋 | 2026-10-07 | 2026-10-07 | For "Bea says Log failed around 18:20", searched by `user` first ("it narrows to Bea's requests"). Putting the `reqId` in the error message was told. | E15 |
+| U9 | Status codes as a support vocabulary (401, 403, 404, 409, 429, 5xx) | 3–8 | 🌱 | — | — | — | S20 |
+| U10 | Foreign keys and relations (`user_id`, `coach_links`) | 3–4 | 🌱 | — | — | — | S28 |
+| U11 | Postman (requests, collections, tests) | 2 / 7 | 🌱 | — | — | — | S22, E9 |
+| U12 | Writing a support ticket (report, repro, evidence, cause, fix, reply) | 8 | 🌱 | — | — | — | E8, U8 |
+| U13 | Incident reports and runbooks | 8 | 🌱 | — | — | — | U12 |
+| U14 | Customer-facing replies (plain words, no blame, next step) | 8 | 🌱 | — | — | — | U12 |
+| U15 | Scoping an MVP from evidence (work backwards from the failures) | Plan | 👋 | 2026-10-07 | 2026-10-07 | Mapped 4 failures to features (login, roles, deletable records, a database). Said "lock it" before checking; when asked, explained logs stay because "tickets need real log excerpts as proof." | A1 |
+
 ---
 
 ## Changelog
@@ -218,3 +240,5 @@
   inside the SQL text (`id = climb.id`), no comma between the SQL and the values, and `-1` carried over from `findIndex` for "not found". Restart test passed.
 - **2026-10-01 (session 10, Section 5 done):** S11 → 🔧. I removed the dead array and fixed the 404 check myself. §5 trace: 5 of 9 (reload, JSON, `req.body`,
   INSERT, id ✅; POST, 201, `loadClimbs()`, SELECT ❌). The gap is one link: HTTP method ↔ action ↔ SQL (S20/S22 reviewed, see 0d). Last time's 9 of 9 was on ✕, straight after building it.
+- **2026-10-07 (lab session 1, planning):** repo cloned from climb-tracker. Added U1–U15. U1, U2, U3, U5, U7, U8 and U15 → 👋 (decisions only, no code).
+  Gap: U3 first answer favoured helpfulness over leaking; fixed by a trace, then applied unaided. Pattern: "lock it" before checking (A6-like).

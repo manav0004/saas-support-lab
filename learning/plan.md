@@ -1,162 +1,67 @@
-# Climb Tracker: Build Plan
+# SaaS Support Lab: Build Plan
 
-> Learning comes first, not speed. The finish line: I can explain how my app works
-> end to end, from the tap on my phone to the row in the database and back.
+> Learning comes first, not speed. Each task is one session and ends with something I can see working.
+> The finish line: I can explain the full trip of a request (login, token, auth and role checks, route, SQL,
+> log line, reply) and work an unseen failure live, from customer report to fix.
 
-## 🔒 Locked decisions (session 4)
+## 🔒 Locked decisions (session 1, 2026-10-07)
 
-Each one is the popular, "boring" choice with the biggest community, and I explained each in my own words before locking it.
+Each was explained in my own words before locking. Climb Tracker's five decisions (JavaScript, plain
+HTML/CSS/JS, Node + Express, PostgreSQL, Render + Neon) carry over unchanged.
 
-| # | Decision | Choice | Why (in my words, cleaned up) | Alternatives considered |
-|---|---|---|---|---|
-| 1 | Language | **JavaScript** | Without JS the page can't *do* anything (react to taps, save climbs). Same language on the server too, so one language instead of two. | TypeScript (types catch bugs, but it's a second thing to learn; add later). Python for the server (I know some, but switching between two languages is confusing). |
-| 2 | Frontend | **Plain HTML + CSS + JS, no framework** | A framework is pre-built and hides how JS really works. Learn the mechanics first. | React (most popular; easier after plain JS). Vue or Svelte (gentler, same drawback). |
-| 3 | Backend | **Node.js + Express** | Real web apps have a server and an API; this is what jobs and portfolios expect. | No backend / `localStorage` (simpler, works offline, but skips servers entirely). Python + Flask (two languages). |
-| 4 | Database | **PostgreSQL** (with SQL) | Free hosts wipe the server's files on redeploy, so a SQLite file would lose my climbs. Postgres keeps its data separately. | SQLite (easiest, but gets wiped on free hosts). MongoDB (objects instead of tables; SQL is the more universal skill). |
-| 5 | Hosting | **Render** (app) + **Neon** (database), both free | Push to GitHub → Render redeploys. Neon's free Postgres doesn't expire. | Railway (no sleep, but ~$5/month). Fly.io (more setup, needs a card). |
-
-**Accepted tradeoffs**
-- **Needs internet at the gym.** Climbs are saved on the server, not on the phone. If the gym's signal is bad, "offline mode" goes in the parking lot.
-- **Cold start.** Render's free server sleeps after about 15 minutes with no visitors, so the first open takes 30–60 seconds.
-- Free-tier rules change often, so check the current limits in Section 8.
+| # | Decision | Choice | Why (in my words, cleaned up) |
+|---|---|---|---|
+| 1 | Where the lab lives | Its own repo, `saas-support-lab`, cloned from `climb-tracker` | "So planted bugs never break the app I use at the gym." |
+| 2 | Who uses it | Three roles: climber (owns their climbs), coach (reads linked climbers only), admin (manages accounts) | "Adding or deleting is Bea's job." |
+| 2b | How the server refuses | **404** when admitting the thing exists would leak private data (Carla's climbs); **403** when it's public knowledge (`/admin/users`) | "Not allowed" told a stranger that climbers 1 and 3 exist; "doesn't exist" is safer. "403, since everyone already knows the admin page exists." |
+| 3 | How users log in | Password, then a signed token that lasts **15 minutes**, sent in the `Authorization: Bearer` header | "A stolen token stops working after 15 minutes." When it expires mid-session: "keep her climb, ask her to log in again, then save it." |
+| 4 | Logs | One JSON line per request: `time`, `reqId`, `user`, `method`, `url`, `status`, `ms`. The `reqId` is shown in error messages | Search a ticket by `user` first ("it narrows to Bea's requests"), then time, then status; a `reqId` in the ticket jumps straight to the line. |
 
 ## 🧱 The sections
 
-Each section ends with something I can **see working**. Each layer sits on top of the one before it.
-At the end of every section I explain the **"trace a tap"** so far, out loud or in writing:
-what happens, step by step, when I tap "Log". The trace gets longer every section.
+### 1. The lab's own home
+- [ ] **1.1 Its own GitHub repo.** Create `saas-support-lab` on GitHub and point `origin` at it (it points at the local `climb-tracker` now). ✅ `git push` puts the 41 commits on GitHub.
+- [ ] **1.2 Its own database.** A new Neon database with the `climbs` table, and a `.env` for the lab. ✅ A climb logged in the lab doesn't appear in Climb Tracker.
+- [ ] **1.3 Its own live URL.** A new Render service for the lab. ✅ The lab and Climb Tracker run side by side at two URLs.
 
-### 1. The page: structure (HTML)
-The log form with all six fields (grade, colour, sent, attempts, effort, intended beta)
-and a "Today" list with a couple of made-up climbs typed into the HTML.
-**✅ Deliverable:** the form and the list show up in the browser, in DevTools' phone view.
+### 2. Users and passwords
+- [ ] **2.1 Postman.** Send my existing `GET` / `POST /api/climbs` from Postman instead of the page. ✅ A saved request returns my climbs, and a bad effort gets the 400.
+- [ ] **2.2 A `users` table and register.** `POST /api/register` stores the email and a *hashed* password. ✅ In Neon, the password column holds a hash, never the password.
+- [ ] **2.3 Login checks the password.** `POST /api/login` compares the password with the hash. ✅ Right password → 200, wrong → 401, and both show in the terminal.
 
-- [x] **1.1 See it on a "phone" and trace the wiring.** Open the page in DevTools' phone view, and find out
-  how one HTML file pulls in the other two. ✅ The page in phone view, plus one wire broken and fixed on purpose.
-- [x] **1.2 The first field: grade.** A `<form>` with a grade dropdown and a "Log" button, replacing the old counter.
-  ✅ The dropdown opens in phone view.
-- [x] **1.3 Clean up the counter, then colour and the two yes/no fields.** Remove the dead counter code from `app.js`,
-  then add a colour dropdown and checkboxes for sent and intended beta.
-  ✅ The Console is clean, and the colour dropdown and both checkboxes work in phone view.
-- [x] **1.4 The numbers, then Today's list.** Add effort (1–5) (attempts is already done: I added it early in 1.3), then a "Today" list with two made-up
-  climbs typed into the HTML. ✅ All six fields are usable, and the list shows. That's the Section 1 deliverable.
+### 3. Tokens: the server knows who you are
+- [ ] **3.1 Login hands out a token.** ✅ Postman shows a token with a 15-minute expiry.
+- [ ] **3.2 A middleware checks the token** before the climbs routes run. ✅ No token → 401, a token edited by hand → 401, a valid token → my climbs.
+- [ ] **3.3 Climbs belong to a user.** A `user_id` column, and every query filters by it. ✅ Two accounts each see only their own climbs.
+- [ ] **3.4 Expiry.** ✅ After 15 minutes (or a 1-minute test setting) the same request gets 401.
 
-*(Session 6: the old tasks 1.3–1.6 were merged into two, because the smaller steps were too slow for how fast I learn.)*
+### 4. Roles and coaches
+- [ ] **4.1 Roles.** A `role` column, and an admin-only `GET /api/admin/users`. ✅ Bea gets 403, the admin gets the list.
+- [ ] **4.2 Coach links.** A `coach_links` table and a way for the admin to link a coach to a climber. ✅ The link shows in Neon.
+- [ ] **4.3 Coaches read linked climbers.** ✅ Marc reads Bea's climbs, gets 404 for Carla's, and can't add or delete either.
 
-### 2. Looks and behaviour: CSS + JavaScript in the browser
-Mobile-first styling so it's usable with chalky thumbs. JS reads the form, builds a climb
-**object**, adds it to an **array**, and redraws the list. Delete button included.
-**✅ Deliverable:** I can log and delete climbs on the page. Refreshing wipes them, and I can explain *why*
-(the data model lives in memory).
+### 5. The page logs in
+- [ ] **5.1 A login form**, and the page sends the token with every `fetch`. ✅ I log in on my phone and see only my climbs.
+- [ ] **5.2 The expired-token test (decision 3).** ✅ A climb typed after expiry is kept, I'm asked to log in, and it's saved.
 
-- [x] **2.1 Catch the submit and build a climb object.** JS stops the page reload, reads all six fields by `name`,
-  and builds one climb object. ✅ Tapping Log doesn't reload, and the climb object shows up in the Console.
-- [x] **2.2 The array and the real list.** Each climb goes into a `climbs` array, and a function redraws the list from it,
-  replacing the made-up `<li>`s. ✅ Logged climbs appear in the list, and a refresh wipes them (I explain why).
-  *(2026-09-28: done. Why a refresh wipes them: the tab's memory is thrown away, and `const climbs = []` makes a new, empty array.)*
-- [x] **2.3 Delete a climb.** Each list item gets a delete button that removes that climb from the array and redraws.
-  ✅ I can fix a mis-tap.
-- [x] **2.4 Mobile-first styling.** Stacked fields, big tap targets, and a readable list. ✅ The app is usable one-handed
-  in phone view. That's the Section 2 deliverable.
-  *(2026-09-29: done. Tested one-handed in phone view: log 3, delete the middle one. §2 trace a tap done too. **Section 2 complete.**)*
+### 6. Structured logs
+- [ ] **6.1 JSON log lines with `reqId`**, replacing the plain logger. ✅ Every request prints one JSON line.
+- [ ] **6.2 `reqId` in error replies and on the page.** ✅ Given a `reqId` from the screen, I find its line in Render's logs.
 
-### 3. My own server (Node + Express, locally)
-Install Node and npm. A tiny Express server sends my HTML/CSS/JS to the browser.
-**✅ Deliverable:** the same app at `http://localhost:3000`, served by *my* server, with each request
-printed in the terminal.
+### 7. Postman tests
+- [ ] **7.1 A collection with tests** for every route and its status codes. ✅ One run, all green; a planted bug turns one red.
 
-- [x] **3.1 Install Node and run JS outside the browser.** Install Node (LTS), then write `hello.js` and run it with `node hello.js`.
-  ✅ It prints in the terminal, and I can explain why `document` crashes there.
-  *(2026-09-29: Node v24.19.0 was already installed. `hello.js` runs and crashed on `document` as expected.
-  2026-09-30: done. It prints the count with `.length` and uses lowercase `sent`.)*
-- [x] **3.2 npm, `package.json`, Express and `.gitignore`.** `npm init`, install Express, see what `node_modules` and the lock file are,
-  and keep them (plus `debug.log`) out of Git. ✅ `git status` shows no `node_modules`.
-  *(2026-09-30: done. I wrote `.gitignore` myself: `node_modules/`, `debug.log`, `.vscode/`. Bug: `debug.log/` with a trailing slash
-  only matches a folder, so the file was silently not ignored.)*
-- [x] **3.3 The server.** `server.js` serves my three files with `express.static`, prints every request, and listens on port 3000.
-  ✅ The app works at `http://localhost:3000`, and the terminal shows each request. Then the §3 trace a tap.
-  *(2026-09-30: done. The three app files moved into `public/`, so only they are served (never `server.js`, and never `.env` in §5).
-  I wrote the logger and the `express.static` line. Bug: `res.use("GET /style.css")` crashed every request; printing is `console.log`.
-  **§3 trace a tap:** predicted 4 requests on load, and got 4 (`/`, `style.css`, `app.js`, `favicon.ico`). Log adds no line
-  (`preventDefault`, nothing is sent). A refresh wipes the climbs even with the server running. Ctrl + C → "site can't be reached".
-  **Section 3 complete.**)*
+### 8. Break it on purpose, and work it like support
+One failure per session: plant it (a commit), receive it as a customer report, reproduce, read the logs,
+find the cause, fix (a second commit), write the reply and the ticket with the real log excerpt.
+✅ Each session ends with one finished ticket in `docs/support/`. Over the section: 10 tickets, 3 incident
+reports, 3 runbooks, and the known-issues page.
 
-### 4. The API: the browser talks to the server
-Routes for listing, adding and deleting climbs (`GET` / `POST` / `DELETE /api/climbs`), with the climbs
-kept in an array on the server. The frontend uses `fetch` instead of its own array.
-**✅ Deliverable:** refreshing the page keeps my climbs, but restarting the server wipes them,
-and I can explain the difference.
-
-- [x] **4.1 The first route: `GET /api/climbs`.** The server keeps a `climbs` array and sends it back as JSON.
-  ✅ Opening `localhost:3000/api/climbs` in the tab shows the climbs as JSON text.
-  *(2026-09-30: done. I wrote `res.json(climbs)`. Predicted "an error, since we didn't create any API" and "no idea" for the log line.
-  Added `npm run dev` (`node --watch`) so the server restarts itself on save.)*
-- [x] **4.2 Save: `POST /api/climbs` + `fetch`.** Log sends the climb to the server (`express.json` reads it), and the page draws
-  its list from `GET` instead of its own array. ✅ A refresh keeps my climbs, and the terminal shows `POST /api/climbs`.
-  *(2026-09-30: done. I wrote the server's `push(req.body)`, `body: JSON.stringify(climb)` and the `loadClimbs()` call. The first explanation
-  was too much at once; one TODO at a time worked. Planted bug: `const climbs` + reassignment → "Assignment to constant variable"; I read it as
-  "gets nothing in return". Fixed with `let`. A refresh keeps a logged climb, but a deleted one came back (✕ only edited the tab's copy).)*
-- [x] **4.3 Delete: `DELETE /api/climbs/:id`.** Each climb gets an `id` from the server, and ✕ asks the server to delete that id.
-  ✅ The deliverable: refresh keeps them, Ctrl + C wipes them, and I explain why. Then the §4 trace a tap.
-  *(2026-10-01: done. Predicted the hidden bug right: `/api/climbs/body.id` → 404, but the local splice made the climb vanish until a refresh.
-  Fixed to `splice(index, 1)` and `${climb.id}` + `loadClimbs()` after several guesses. Deliverable: a restart left only the 2 made-up climbs;
-  my why covered the server half. §4 trace: all 9 hops right. **Section 4 complete.**)*
-
-### 5. The database (PostgreSQL)
-A `climbs` table in Postgres. The API reads and writes with SQL instead of the array.
-Passwords and connection details stay out of the code (environment variables).
-**✅ Deliverable:** climbs survive a server restart, and I can see them with a SQL query run by hand.
-
-*(2026-10-01: the database lives on **Neon** from the start, not a local Postgres install. Same free database as §8, nothing to install
-on Windows, and Neon's SQL Editor in the browser is where I run queries by hand.)*
-
-- [x] **5.1 The table, by hand.** Neon account + project, then in the SQL Editor: `CREATE TABLE climbs`, one `INSERT`, one `SELECT`.
-  ✅ My climb shows up as a row in a query result, with an id the database gave it.
-  *(2026-10-01: done. Types right (`TEXT`, `INTEGER`, `BOOLEAN`); my table uses `GENERATED ALWAYS AS IDENTITY` and `IF NOT EXISTS`.
-  Predicted the INSERT would error without an `id` ❌ (the database fills in `id` and `created_at`), a repeat INSERT would error ❌ (5 runs = 5 rows),
-  and `'lots'` in `attempts` would error ✅ (`22P02`). Two `42601` syntax errors on the way: Postgres couldn't read the text, so nothing ran.)*
-- [x] **5.2 Connect the server.** `npm install pg`, the connection string in `.env` (git-ignored), loaded with `node --env-file`.
-  ✅ On start, the server prints how many rows the table has.
-  *(2026-10-01: done. I installed `pg`, made `.env`, added it to `.gitignore`, and wrote `process.env.DATABASE_URL` myself. My own first version worked
-  (`SELECT *` + `result.rowCount`). The `COUNT` version printed 1: `FROM` was missing (so `climbs` became a column nickname) and `rowCount` counts the
-  reply's rows. `result.rows[0].count` was given to me; I'd been asked to guess syntax nobody had shown me.)*
-- [x] **5.3 GET and POST use SQL.** `SELECT` replaces `res.json(climbs)`, and `INSERT ... RETURNING` with `$1, $2...` placeholders replaces `push`.
-  ✅ A climb logged in the app shows up in a query in Neon's editor.
-  *(2026-10-01: done. GET was shown in full and I typed it in. For POST I saw a two-column example, then extended it to all six columns, slots and
-  values myself, in matching order. Bug: `RETURNING` with no `*` (a syntax error, so nothing was saved and the page stayed quiet; the terminal had the error).)*
-- [x] **5.4 DELETE uses SQL, and the array dies.** `DELETE ... WHERE id = $1`, then remove the `climbs` array and `nextId`.
-  ✅ The deliverable: Ctrl + C, restart, and the climbs are still there. Then the §5 trace a tap.
-  *(2026-10-01: the deliverable works: ✕ deletes the row, and the climbs survive a restart. My first try had `id = climb.id` inside the SQL, no comma
-  before `[id]`, and `rowCount == -1`; the finished route was given to me. I then deleted the dead array and `nextId` and fixed the 404 check to `0`.
-  Where the climbs live now: "in the database" ✅ (the why, a separate program on Neon that my restart doesn't touch, was told to me).
-  **§5 trace a tap (Log):** 5 of 9. Right: reload, JSON, `req.body`, INSERT, the database fills in `id`. Missed: the request is a **POST**, the reply
-  status is **201**, the page function that re-reads is **`loadClimbs()`**, and the GET route runs a **SELECT**. **Section 5 complete.**)*
-
-### 6. The core features (the MVP, complete)
-"Today" versus **past sessions** (earlier days and their climbs), checks on bad input,
-and a clear message when the server can't be reached.
-*(Noted in 2.1: `effort` is still a string, and it's `''` when none is picked. Make effort required, or give it a default, then
-`Number()` it. Don't `Number('')` it blindly, because that silently becomes `0`.)*
-**✅ Deliverable:** MVP features 1–5 all work on my laptop.
-
-- [ ] **6.1 Bad input is refused, in two places.** The page: effort is required and sent as a number. The server: it checks the climb
-  before the INSERT and answers `400` with a reason. ✅ Log without an effort can't be sent, and a bad request made by hand gets a 400, not a crash.
-- [ ] **6.2 Today vs past sessions.** Today's list shows only today's climbs (by `created_at`), and a new "Past sessions" card lists earlier
-  days with their climbs. ✅ Rows I back-date by hand in Neon show up under the right day.
-- [ ] **6.3 When things go wrong.** `try` / `catch` around `fetch`, and a visible message when the server can't be reached or says no.
-  ✅ With the server stopped, tapping Log shows a message instead of doing nothing. Then the §6 trace a tap. That's the Section 6 deliverable.
-
-### 7. Tests and debugging
-Automated tests for the API, plus deliberate bug hunting with DevTools and the server logs.
-**✅ Deliverable:** one command runs the tests and they pass. When I break something on purpose, they fail
-and point to the problem.
-
-### 8. Live on the internet (Render + Neon)
-Database on Neon, app on Render, connected to GitHub so every push redeploys.
-**✅ Deliverable:** a public URL on my phone. **MVP done** = one real gym session logged with it.
+### 9. The portfolio
+- [ ] **9.1 README** that a recruiter can read in 2 minutes, linking the live URL, the tickets and the journal.
+- [ ] **9.2 The 10-minute walkthrough** of one incident, from report to fix, recorded.
 
 ## 🎯 The final exam
 
-After Section 8, explain without notes the full trip: tap "Log" → JS builds a climb object →
-`fetch` sends an HTTP request → Express route → SQL `INSERT` into Postgres → response back →
-JS redraws the list. Then the other direction: opening the app and seeing past sessions.
+Without notes: the full trip of a request, from login to the token, the auth and role checks, the route,
+the SQL, the log line and the reply. Then one failure I haven't seen before, live, from customer report to fix.
