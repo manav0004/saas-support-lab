@@ -20,7 +20,7 @@ HTML/CSS/JS, Node + Express, PostgreSQL, Render + Neon) carry over unchanged.
 ## 🧱 The sections
 
 ### 1. The lab's own home
-- [ ] **1.1 Its own GitHub repo.** Create `saas-support-lab` on GitHub and point `origin` at it (it points at the local `climb-tracker` now). ✅ `git push` puts the 41 commits on GitHub.
+- [x] **1.1 Its own GitHub repo.** Create `saas-support-lab` on GitHub and point `origin` at it (it points at the local `climb-tracker` now). ✅ `git push` puts the 42 commits on GitHub. *(Done 2026-10-12: github.com/manav0004/saas-support-lab.)*
 - [ ] **1.2 Its own database.** A new Neon database with the `climbs` table, and a `.env` for the lab. ✅ A climb logged in the lab doesn't appear in Climb Tracker.
 - [ ] **1.3 Its own live URL.** A new Render service for the lab. ✅ The lab and Climb Tracker run side by side at two URLs.
 

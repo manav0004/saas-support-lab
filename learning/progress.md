@@ -2,7 +2,8 @@
 
 ## Now
 Session 1 (2026-10-07): planning done. 4 decisions + MVP locked (`plan.md`, `project.md`). Repo cloned from climb-tracker (41 commits); `origin` still points at the local climb-tracker folder.
-NEXT: 1.1, the lab's own GitHub repo (point `origin` at it, push). Before it: read the new learning files and the decision-record drafts, then commit them myself after `git diff`.
+Plan committed (8f3b54d). `npm install` done. 1.1 done 2026-10-12: `origin` = github.com/manav0004/saas-support-lab, 42 commits pushed (by Claude on request). NEXT: 1.2, the lab's own Neon database.
+Open question left unanswered: why Git can ignore `node_modules` when the app needs it.
 Warm-up: the shaky HTTP method ↔ SQL link (below), asked as "in Postman, which method adds a climb, which SQL runs, which status comes back?"
 
 ## Solid (did it correctly) — carried from Climb Tracker
@@ -25,4 +26,4 @@ Warm-up: the shaky HTTP method ↔ SQL link (below), asked as "in Postman, which
 - Timing / `await`: "not called yet" vs "data not there yet".
 
 ## Parking lot
-- Password reset · Stay logged in (no re-entering the password) · Edit a climb · Coach comments · Rate limits (429)
+- Password reset · Stay logged in (no re-entering the password) · Edit a climb · Coach comments · Rate limits (429) · claude-council plugin (cloned to ~/claude-council, not installed)

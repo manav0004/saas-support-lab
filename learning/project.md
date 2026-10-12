@@ -7,10 +7,55 @@
 
 - **Background:** HTML and CSS websites, some Python, a Unity (C#) platformer. Learned JavaScript, Node,
   Express and PostgreSQL by building Climb Tracker (sessions 1–11, Sept–Oct 2026; its full record is in that repo).
-- **Goal:** a job in support or application support in Barcelona. This lab is my main evidence for it.
+- **Goal:** get out of retail into application/SaaS support in Barcelona, on a path toward application
+  security. This lab is my main evidence for it. The full reasoning is in the next section.
 - **How I learn best:** fast with ideas, limited working memory (ADHD). One small step per message,
   depth over volume, analogies to Unity, Python and Climb Tracker, every step ends with something working.
   The full rules are in `CLAUDE.md`.
+
+## 🧭 Career goal and why this project (updated 2026-10-07)
+
+Written so an outside reviewer (e.g. claude-council via `--file=learning/project.md`) has the context with nothing else.
+
+> **Current phase — October 2026 is a learning month, not an applying month.** No job applications this month.
+> All time goes to learning: building this lab. Applications start after October. Any advice should respect
+> this and not push me to apply now.
+
+- **Where I am now:** working in retail in the Barcelona area, with a non-IT CFGS (vocational higher diploma).
+  Self-taught: JavaScript, Node, Express, PostgreSQL, HTML/CSS, some Python, C# (Unity), Linux basics. Good English.
+- **The real objective:** not "the easiest tech job I can get", but the best way out of retail that keeps a path
+  to technically interesting, hard-to-commoditize work paying €35k+.
+- **Targets, in order:**
+  1. **Primary:** application/SaaS support (also product support, onboarding, technical support). The most realistic
+     first job that still uses my programming.
+  2. **High-value:** junior application security (AppSec): secure code review, static analysis, working with developers.
+     Junior listings ask for programming, which most security beginners lack and I have.
+  3. **Specialization, long-term:** pentesting, web and API first. Built in parallel, not my first job.
+  4. **Commercial backup:** ERP / business systems support.
+  5. **Escape hatch only:** generic IT helpdesk / M365.
+- **Strategy:** one learning month (October 2026), then apply to tech jobs while building security skills
+  alongside. Never "study security for a year, then apply": a long study-first plan is the failure mode I want
+  to avoid, so the learning-only phase is capped at this month. The first job doesn't need to be in security;
+  a year of app support (production apps, APIs, databases, logs, incidents) plus a security portfolio makes a
+  junior AppSec application believable.
+- **Time split from November 2026, for 6 months:** 40% applications and interviews · 30% security (networking →
+  Linux → web security → Burp → OWASP Top 10) · 20% SQL, APIs, troubleshooting, ERP · 10% portfolio.
+  October is 100% learning.
+- **Certifications:** none bought yet. Fundamentals first; pick one practical cert (eJPT / PNPT / CPTS type) only
+  if my target listings keep asking for it.
+
+**Why this project fits both tracks:** a support lab proves the primary target (tickets, logs, incidents,
+runbooks). Its login, roles and access rules are exactly where web vulnerabilities live (broken access control,
+IDOR, auth flaws), so the same code is the bridge to AppSec: I understand *why* a flaw exists in code I wrote,
+not just how to point a tool at it.
+
+**Open question (not decided):** whether to add a security phase after the MVP: plant OWASP-style vulnerabilities
+(IDOR, SQL injection, XSS…), exploit them with Burp, write up each finding (impact, evidence, fix), then fix them.
+The locked MVP stays as it is until this is decided.
+
+**Source and caveat:** this strategy came from a review with an outside AI consultant against Barcelona job
+listings (Oct 2026). Its market claims (e.g. junior AppSec listings asking for Python/JS/C#, junior pentest
+listings valuing Burp, CTF write-ups and eJPT/PNPT) are its reading of those listings and haven't been checked yet.
 
 ## The idea
 
